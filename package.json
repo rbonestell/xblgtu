@@ -1,0 +1,28 @@
+{
+  "name": "xblgtu",
+  "version": "1.0.0",
+  "description": "Xbox Live Gamertag Utility",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "bin": {
+    "xblgtu": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "settings.json"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "app-xbox-live": "^1.2.8",
+    "axios": "^1.6.8",
+    "log-symbols": "^6.0.0",
+    "ora": "^8.0.1"
+  },
+  "overrides": {
+    "axios": "^1.6.8"
+  }
+}
