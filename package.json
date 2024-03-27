@@ -11,8 +11,7 @@
     "xblgtu": "./index.js"
   },
   "files": [
-    "index.js",
-    "settings.json"
+    "index.js"
   ],
   "author": "",
   "license": "ISC",
