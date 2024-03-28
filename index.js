@@ -107,35 +107,40 @@ async function AttemptLogin(user, password) {
 }
 
 async function LookupGamertag(gamertag) {
-	try {
-		attemptCount++;
-		const lookupResponse = await QueryGamertag(gamertag);
-		errorCount = 0; // Reset request error count
-		if (lookupResponse?.status == 200) {
-			if (lookupResponse?.data?.composedGamertag == gamertag) {
-				spinner.succeed(`Gamertag ${gamertag} is available`);
-				if (settings.autoClaim)
-					ClaimGamertag(gamertag);
-			} else {
-				if (settings.monitorAvailability) {
-					spinner.start(`Gamertag ${gamertag} is unavailable, monitoring... (${attemptCount})`);
-					await sleep(settings.lookupRetryDelaySeconds * 1000);
-					await LookupGamertag(gamertag);
+	do {
+		try {
+			attemptCount++;
+			const lookupResponse = await QueryGamertag(gamertag);
+			errorCount = 0; // Reset request error count
+			if (lookupResponse?.status == 200) {
+				if (lookupResponse?.data?.composedGamertag == gamertag) {
+					settings.monitorAvailability = false;
+					spinner.succeed(`Gamertag ${gamertag} is available`);
+					if (settings.autoClaim) {
+						ClaimGamertag(gamertag);
+					}
 				} else {
-					spinner.fail(`Gamertag ${gamertag} is unavailable`);
+					if (settings.monitorAvailability) {
+						spinner.start(`Gamertag ${gamertag} is unavailable, monitoring... (${attemptCount})`);
+						await sleep(settings.lookupRetryDelaySeconds * 1000);
+					} else {
+						settings.monitorAvailability = false;
+						spinner.fail(`Gamertag ${gamertag} is unavailable`);
+					}
 				}
+			} else if (lookupResponse?.status === 401 || lookupResponse?.status === 403) {
+				spinner.warn("Authentication error occurred");
+				await AttemptLogin(settings.login, settings.password);
+			} else {
+				spinner.fail(`Error ${lookupResponse.data?.code}: ${lookupResponse.data?.description} (Status: ${lookupResponse?.status})`);
 			}
-		} else if (lookupResponse?.status === 400) {
-			spinner.fail(`Error code ${lookupResponse.data?.code}: ${lookupResponse.data?.description}`);
+		} catch (err) {
+			errorCount++;
+			spinner.fail("Error: " + err.message);
+			if (errorCount >= 10)
+				process.exit(1);
 		}
-	} catch (err) {
-		errorCount++;
-		spinner.fail("Error: " + err.message);
-		if (errorCount < 10)
-			await LookupGamertag(gamertag);
-		else
-			process.exit(1);
-	}
+	} while (settings.monitorAvailability)
 }
 
 async function QueryGamertag(gamertag) {
@@ -192,10 +197,15 @@ async function ClaimGamertag(desiredGamertag) {
 			headers: headers,
 			httpAgent: new https.Agent({ rejectUnauthorized: false })
 		});
-		if (result.status === 200)
+		if (result.status === 200) {
 			spinner.succeed(`Successfully claimed gamertag ${desiredGamertag}! \u{0001F389}`);
-		else
+		} else if (result.status === 401 || result.status === 403) {
+			spinner.warn("Authentication error occurred");
+			await AttemptLogin(settings.login, settings.password);
+			await ClaimGamertag(desiredGamertag);
+		} else {
 			spinner.fail(`Unknown error attempting to claim gamertag`);
+		}
 	} catch (error) {
 		// TODO: Log error to log file
 		spinner.fail(`Failed to claim gamertag due to error:\n\t${error.message}`);
