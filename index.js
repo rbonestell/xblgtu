@@ -41,7 +41,8 @@ LoadSettings();
 // Prompt for login and password if not found in settings.json
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 if (!settings.login || !settings.password) {
-	console.log("Please enter your Microsoft account credentials\n")
+	console.log("Please enter your Microsoft account credentials");
+	console.log(`${logSymbols.warning} Not compatible with 2FA or passwordless accounts ${logSymbols.warning}\n`);
 	settings.login = await rl.question('Login: ');
 	settings.password = await rl.question('Password: ');
 }
