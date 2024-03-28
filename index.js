@@ -77,7 +77,6 @@ function LoadSettings() {
 		settings.password = settingsJson?.password || "";
 		settings.desiredGamertag = settingsJson?.desiredGamertag || "";
 		settings.lookupRetryDelaySeconds = settingsJson?.lookupRetryDelaySeconds || 75;
-		spinner.succeed('')
 	} catch (err) {
 		return
 	}
