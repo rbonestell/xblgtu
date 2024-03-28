@@ -2,6 +2,8 @@
 
 A Node.js based CLI utility for looking up, monitoring, and claiming gamertags on Xbox Live.
 
+![xblgtu](screenshot.png)
+
 ## Installation, Configuration, and Usage
 
 ### How to Install
@@ -15,6 +17,7 @@ A Node.js based CLI utility for looking up, monitoring, and claiming gamertags o
    * `xblgtu`
 
 ### Defining Settings (`settings.json`)
+
 The utility has the following settings options, to be defined in a `settings.json` file located in the directory from where you call the `xblgtu` command.
 
 |Name|Description|Default|
@@ -34,7 +37,7 @@ Here is an example `settings.json` file to automatically provide Microsoft accou
 {
     "login": "CoolGamerDude42@hotmail.com",
     "password": "Hunter2",
-    "desiredGamertag": "Major Nelson",
+    "desiredGamertag": "CoolGuy",
     "monitorAvailability": true,
     "lookupRetryDelaySeconds": 75,
     "autoClaim": true
