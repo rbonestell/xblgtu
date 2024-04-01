@@ -108,10 +108,10 @@ async function AttemptLogin(user, password) {
 async function LookupGamertag(gamertag) {
 	do {
 		try {
-			attemptCount++;
 			const lookupResponse = await QueryGamertag(gamertag);
 			errorCount = 0; // Reset request error count
 			if (lookupResponse?.status == 200) {
+				attemptCount++;
 				if (lookupResponse?.data?.composedGamertag == gamertag) {
 					settings.monitorAvailability = false;
 					spinner.succeed(`Gamertag ${gamertag} is available`);
@@ -130,8 +130,8 @@ async function LookupGamertag(gamertag) {
 			} else if (lookupResponse?.status === 401 || lookupResponse?.status === 403) {
 				spinner.warn("Authentication error occurred");
 				await AttemptLogin(settings.login, settings.password);
-			} else {
-				spinner.fail(`Error ${lookupResponse.data?.code}: ${lookupResponse.data?.description} (Status: ${lookupResponse?.status})`);
+			} else if (lookupResponse !== null) {
+				spinner.fail(`Error ${lookupResponse?.data?.code}: ${lookupResponse?.data?.description} (Status: ${lookupResponse?.status})`);
 			}
 		} catch (err) {
 			errorCount++;
